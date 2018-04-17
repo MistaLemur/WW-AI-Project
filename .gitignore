@@ -30,3 +30,23 @@
 *.exe
 *.out
 *.app
+/Debug/*.pdb
+/Debug/*.ilk
+/.vs/Wumpus World/v15/*.suo
+/.vs/Wumpus World/v15/*.db
+/.vs/Wumpus World/v15/ipch/AutoPCH/2909364e9e2476e7/*.ipch
+/.vs/Wumpus World/v15/ipch/AutoPCH/7e527f498c357858/*.ipch
+/.vs/Wumpus World/v15/ipch/AutoPCH/8e68586eed88a156/*.ipch
+/Wumpus World/*.filters
+/Wumpus World/*.vcxproj
+/Wumpus World/Debug/*.pdb
+/Wumpus World/Debug/*.idb
+/Wumpus World/Debug/*.log
+/Wumpus World/Debug/Wumpus World.tlog/*.tlog
+/Wumpus World/Wumpus_World_Cpp_Shell/src/BiancaAI modified/MyAI.cpp
+/Wumpus World/Wumpus_World_Cpp_Shell/src/BiancaAI modified/MyAI.hpp
+/Wumpus World/Wumpus_World_Cpp_Shell/src/BiancaAI/MyAI.cpp
+/Wumpus World/Wumpus_World_Cpp_Shell/src/BiancaAI/MyAI.hpp
+/Wumpus World/Wumpus_World_Cpp_Shell/src/BiancaAI2/MyAI.cpp
+/Wumpus World/Wumpus_World_Cpp_Shell/src/BiancaAI2/MyAI.hpp
+/Wumpus World/Debug/Wumpus World.tlog/*.lastbuildstate
