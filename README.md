@@ -2,7 +2,8 @@
 WumpusWorld AI Project
 
 This is my final project entry for an Intro to AI class.
-My code is only the code within the TonyAI folders, and the MyAI.cpp and MyAI.hpp.
+My code is only the code within the MAI folders, and the MyAI.cpp and MyAI.hpp.
+Two versions of my AI can be found here; MAI1 and MAI2. These behave very differently from one another; MAI2 scores much higher than MAI1 does, since MAI2 implements a more efficient algorithm.
 
 The WumpusWorld environment (World.cpp, World.hpp, Agent.hpp, etc...) was provided by the professor.
 
