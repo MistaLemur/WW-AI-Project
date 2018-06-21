@@ -2,8 +2,8 @@
 WumpusWorld AI Project
 
 This is my final project entry for an Intro to AI class.
-My code is only the code within the MAI folders, and the MyAI.cpp and MyAI.hpp.
-Two versions of my AI can be found here; MAI1 and MAI2. These behave very differently from one another; MAI2 scores much higher than MAI1 does, since MAI2 implements a more efficient algorithm.
+My code is only the code within the SUV_AI folders under WW-AI-Project/Wumpus World/Wumpus_World_Cpp_Shell/src/.
+Two versions of my AI can be found here; SUV_AI1 and SUV_AI2. These behave very differently from one another; SUV_AI2 scores much higher than SUV_AI1 does, using lessons learned from SUV_AI1.
 
 The WumpusWorld environment (World.cpp, World.hpp, Agent.hpp, etc...) was provided by the professor.
 
