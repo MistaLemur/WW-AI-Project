@@ -1,7 +1,7 @@
 // ======================================================================
 // FILE:        MyAI.hpp
 //
-// AUTHOR:      Miguel SuVasquez
+// AUTHOR:      Anthony SuVasquez
 // ======================================================================
 
 #ifndef MYAI_LOCK
@@ -32,13 +32,13 @@ public:
 
 	
 	class TileNode {
-
+		/*
+		Here's the definition of the TileNode class. These are the nodes that make up the AI's graph model of the cave.
+		*/
 		public:
 
 			int x;
 			int y;
-
-
 
 			int hasMonster = -1;
 			/* This int represents whether or not this has a monster
@@ -82,7 +82,7 @@ public:
 				y = newy;
 			}
 
-			~TileNode() { /* The TileNode graph is meant to be deleted from the bottom left corner */
+			~TileNode() { /* The TileNode graph is meant to be deleted from the bottom left corner. This is a crude way of doing it. */
 				if (y == 0 && right != nullptr) {
 					delete right;
 				}
@@ -92,11 +92,14 @@ public:
 				}
 			}
 
-			bool inBounds(int min_x, int min_y, int max_x, int max_y) {
+			bool inBounds(int min_x, int min_y, int max_x, int max_y) { //This function returns true if this tile node is in the graph boundaries.
 				return x >= min_x && x < max_x && y >= min_y && y < max_y;
 			}
 
 			void onExplore() {
+				/*
+				This is called when the Agent moves into this tile. It sets the explore tag, marks this location as safe, and updates some stuff for neighbors.
+				*/
 				if (isExplored) return;
 
 				isExplored = true;
@@ -141,17 +144,13 @@ public:
 				if (hasPit < 0) {
 					hasPit = 1;
 				}
-				/*
-				else if (hasPit == 1) {
-					if (breezeCount > 2) {
-						hasPit = 2; //This isn't necessarily true, but it's a pretty decent assumption
-					}
-				}
-				*/
 				
 			}
 
 			void initAdjacentNodes(int min_x, int min_y, int max_x, int max_y, std::list<TileNode*> &nodesList) {
+				/*
+				This function creates new adjacent nodes or links existing adjacent nodes to this one.
+				*/
 				if (up == nullptr && max_y >= y+1) {
 
 					for (TileNode* otherNode : nodesList) {
@@ -225,6 +224,7 @@ public:
 			}
 
 			/*
+			//This function is deprecated.
 			int exploreCost(float breezeMult = 1, float stenchMult = 1, float monsterMult = 1) { //heuristic cost of exploring this node
 				int cost = 0;
 
@@ -334,7 +334,7 @@ public:
 	int backtrack = 0;
 	float backtrackThreshold = 0.756f;
 
-	char state = 'e'; //This stores the state machine's state ID.
+	char state = 'e'; //This stores the AI's state machine's state.
 	//e for "Exploration State"
 	//r for "Return State"
 	//char comparisons are better than string comparisons when it comes to storing the state machine ID.
