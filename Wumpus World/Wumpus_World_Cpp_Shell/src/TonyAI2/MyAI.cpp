@@ -1,7 +1,7 @@
 // ======================================================================
 // FILE:        MyAI.cpp
 //
-// AUTHOR:      Miguel SuVasquez
+// AUTHOR:      Anthony SuVasquez
 // ======================================================================
 
 #include "MyAI.hpp"
@@ -34,13 +34,16 @@ Agent::Action MyAI::getAction
 	// YOUR CODE BEGINS
 	// ======================================================================
 	
-	Agent::Action myAction = CLIMB; //default action
+	/*
+	This is the function called each turn to determine the action of my AI's agent.
+	*/
+	
+	Agent::Action myAction = CLIMB; //default action is to exit.
 
+	//there are two AI states: exploration and return that call different functions.
 	if (state == 'e') myAction = explorationState(stench, breeze, glitter, bump, scream);
 
 	else if (state == 'r') myAction = returnState(stench, breeze, glitter, bump, scream);
-
-
 
 	return myAction;
 	// ======================================================================
@@ -58,10 +61,17 @@ Agent::Action MyAI::explorationState(
 	bool bump,
 	bool scream
 ) {
-	time++;
+	/*
+	This is the AI function for its exploration state.
+	This state will explore the cave, and attempt to find the gold bar.
+	*/
+	time++; //increment the time counter
 
 	
 	if (breeze && x == 0 && y == 0) {
+		/*
+		This is a solution for an edge case where any move has a 50% chance of death.
+		*/
 		return CLIMB;
 	}
 	/*
@@ -73,7 +83,7 @@ Agent::Action MyAI::explorationState(
 	*/
 
 
-	//if stench, pewpew
+	//if I smell the monster, I shoot an arrow immediately to either kill it or narrow down it's position.
 	if (stench && stillHasArrow) {
 		TileNode* frontNode = currentNode->getNeighbor(dir);
 		if (frontNode != nullptr && frontNode->stenchCount > 0) {
@@ -83,7 +93,7 @@ Agent::Action MyAI::explorationState(
 		}
 	}
 
-	//if pewpew, deduce monster status and position
+	//if I just shot an arrow, I need to check if I heard the monster's death cry and update its possible position.
 	if (justShotArrow) {
 		justShotArrow = false;
 		if (!scream) {
@@ -127,12 +137,13 @@ Agent::Action MyAI::explorationState(
 
 	//std::cout << "Frontier Nodes: " << newFrontierNodes.size() << std::endl;
 
-	//look for the next frontier node to travel to
+	//Look for a way to travel to my current destination.
 	if (pathDestination != nullptr) {
-		//first figure out if I've reached it
+		//if I've reached my current destination
 		if (currentNode == pathDestination) pathDestination = nullptr;
 		else {
-			//now figure out if the next step is dangerous to travel to...
+			//If I haven't reached my destination...
+			//figure out if the next step is dangerous to travel to
 			TileNode* next = *pathIterator;
 			if (next == nullptr) pathDestination = nullptr;
 			else {
@@ -153,7 +164,7 @@ Agent::Action MyAI::explorationState(
 					}
 				}
 
-				if (dangerous) pathDestination = nullptr;
+				if (dangerous) pathDestination = nullptr; //If this path is determined to be dangerous, find a new destination.
 			}
 		}
 	}
@@ -196,20 +207,19 @@ Agent::Action MyAI::explorationState(
 			pathIterator = safePath(currentNode, dest)->begin();
 		}
 		else {
-			//std::cout << "UNABLE TO FIND PATH??? " << newFrontierNodes.size() << std::endl;
+			//In the case that I'm not able to find a safe path to the destination, exit the cave.
 			glitter = true;
 		}
 	}
 
 
-	//if glitter, pick shit up
+	//if I spot a glitter, pick up the gold bar
 	if (glitter) { //If there is glitter, then grab the gold and change to the "return" state.
 		state = 'r';
 		return GRAB;
 	}
 
-	/* Choose a direction to move in. Always move in the direction of lowest cost from current */
-
+	/* Choose a direction to move in. Move towards the next step in the path.*/
 	int moveDir = dir;
 	TileNode* next = *pathIterator;
 
@@ -218,7 +228,7 @@ Agent::Action MyAI::explorationState(
 	if (next->x > currentNode->x) moveDir = 4;
 	if (next->x < currentNode->x) moveDir = 8;
 
-	if (next != pathDestination && moveDir == dir) pathIterator++;
+	if (next != pathDestination && moveDir == dir) pathIterator++; //step the path iterator when I move forward
 
 	return Move(moveDir);
 }
@@ -230,9 +240,10 @@ Agent::Action MyAI::returnState(
 	bool bump,
 	bool scream
 ) {
-	//The return state just runs A* on already-explored nodes. This ensures the shortest path but only through nodes that we have already explored.
-	//Performing additional exploration in this state has the potential to discover a shorter path, but ultimately it is more likely to take up more time.
-	//This flavor of A* uses manhattan heuristic + some heuristic cost for turning.
+	//The return state follows the exploration parent of each node until it reaches the ladder.
+	//This does not always yield optimal paths home, but is very simple to implement.
+	//With Djiktras' algorithm implementation, it's not guaranteed to find the shortest path home because of time cost of turning.
+	//Even implementing A* with varying the heuristic to try to compensate for turning time cost does not yield the shortest path.
 	if (x == 0 && y == 0) {
 		delete startNode;
 		return CLIMB;
@@ -255,14 +266,20 @@ Agent::Action MyAI::returnState(
 
 
 void MyAI::exploreTile(bool stench, bool breeze, bool glitter, bool bump, bool scream) {
+/*
+the exploreTile() function updates the AI's graph model of the cave with the current position.
+Some of its sensors, the stench and breeze booleans, provide limited information about adjacent nodes from the current position.
+This function uses that sensory data in the graph model to mark likely locations for dangers to the AI agent.
+*/
 
 	if (startNode == nullptr) {
+		//If I have no start node, then I should initialize a new graph
 		startNode = new TileNode(0, 0);
 		currentNode = startNode;
 		allNodes.push_back(currentNode);
 	}
 
-	if (bump) { //If I ran into the boundary...
+	if (bump) { //If I ran into the boundary update graph's boundary limits.
 		if (dir == 1) {
 			max_y = y;
 		}
@@ -294,15 +311,18 @@ void MyAI::exploreTile(bool stench, bool breeze, bool glitter, bool bump, bool s
 	lastNode = currentNode;
 
 	if (!currentNode->isExplored) { //This is my first time on this tile.
-		currentNode->initAdjacentNodes(min_x, min_y, max_x, max_y, allNodes);
+		currentNode->initAdjacentNodes(min_x, min_y, max_x, max_y, allNodes); //create unexplored nodes for my neighbors
 
-		currentNode->onExplore();
-		newFrontierNodes.remove(currentNode);
+		currentNode->onExplore(); //Run the exploration event on my current node
+		newFrontierNodes.remove(currentNode); //Remove my node from the list of ones that are unexplored.
 
 		//if breeze, increment breeze counts
 		if (breeze) {
 			DangerNode* danger = new DangerNode(currentNode->x, currentNode->y, 'b');
+			//Create a new danger node here. Danger nodes keep track of where dangerous sensory data occured.
 			
+			//I also keep track of how many times dangerous sensory data occured for the neighbors of this node.
+			//This is somewhat vestigial from the previous version of this AI
 			if (currentNode->up != nullptr) {
 				currentNode->up->incrementBreeze();
 				if (currentNode->up->breezeCount > 0) newFrontierNodes.remove(currentNode->up);
@@ -335,6 +355,10 @@ void MyAI::exploreTile(bool stench, bool breeze, bool glitter, bool bump, bool s
 
 		//if stench, increment stench counts and maybe deduce monster location
 		if (stench) {
+			/*
+			If I smell the monster's stench, I do a similar behavior. However, since there's only 1 monster in the cave...
+			It is very easy to deduce its location, so I do not create a danger node for it.
+			*/
 			if (currentNode->up != nullptr) {
 				currentNode->up->incrementStench();
 				if (currentNode->up->stenchCount > 1) {
@@ -384,7 +408,7 @@ void MyAI::exploreTile(bool stench, bool breeze, bool glitter, bool bump, bool s
 			}
 		}
 
-		//add neighbors to frontier nodes
+		//add neighbors to frontier nodes if they have not been explored yet
 		for (TileNode* node : currentNode->getNeighbors()) {
 			if (node == nullptr) continue;
 			if (node->isExplored) continue;
@@ -408,6 +432,10 @@ void MyAI::exploreTile(bool stench, bool breeze, bool glitter, bool bump, bool s
 }
 
 Agent::Action MyAI::Move(int moveDir) {
+	/*
+	This function turns a desired direction of movement into a verb for the Agent.
+	The Agent can only turn left, turn right, or walk forward.
+	*/
 
 	if (dir != moveDir) {
 		Agent::Action returnAction = TURN_LEFT;
